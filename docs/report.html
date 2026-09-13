@@ -1,0 +1,482 @@
+<title>Predictive-Maintenance Fleet</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root{
+    --paper:#f1efe8;
+    --panel:#ffffff;
+    --ink:#20242a;
+    --ink-dim:#5b6169;
+    --border:#dcd7ca;
+    --accent:#2f5d73;
+    --accent-ink:#ffffff;
+    --good:#3f7d4f;
+    --warn:#a8791f;
+    --crit:#ab3f34;
+    --console-bg:#161a15;
+    --console-ink:#d9d3a8;
+    --console-dim:#7c8a72;
+    --console-amber:#e0a94a;
+    --console-red:#e0776a;
+    --shadow: 0 1px 2px rgba(32,36,42,.06), 0 8px 24px -12px rgba(32,36,42,.15);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#14171a;
+      --panel:#1b1f23;
+      --ink:#e8e5db;
+      --ink-dim:#9aa0a6;
+      --border:#2c3238;
+      --accent:#7fb2c9;
+      --accent-ink:#0e1416;
+      --good:#78c78d;
+      --warn:#e0ab52;
+      --crit:#e28577;
+      --console-bg:#0d100c;
+      --console-ink:#d9d3a8;
+      --console-dim:#6c7963;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#14171a;
+    --panel:#1b1f23;
+    --ink:#e8e5db;
+    --ink-dim:#9aa0a6;
+    --border:#2c3238;
+    --accent:#7fb2c9;
+    --accent-ink:#0e1416;
+    --good:#78c78d;
+    --warn:#e0ab52;
+    --crit:#e28577;
+    --console-bg:#0d100c;
+    --console-ink:#d9d3a8;
+    --console-dim:#6c7963;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', system-ui, -apple-system, Segoe UI, sans-serif;
+    padding-block:40px 64px;
+  }
+  .page{
+    max-width:880px;
+    margin:0 auto;
+    padding-inline:20px;
+    display:flex;
+    flex-direction:column;
+    gap:34px;
+  }
+  code, .mono{ font-family:'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace; }
+
+  /* ---------- header ---------- */
+  .masthead{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    border-bottom:2px solid var(--ink);
+    padding-bottom:18px;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    color:var(--accent);
+    font-weight:600;
+  }
+  h1{
+    margin:0;
+    font-size:clamp(26px, 4vw, 34px);
+    font-weight:700;
+    line-height:1.15;
+    text-wrap:balance;
+    letter-spacing:-0.01em;
+  }
+  .subtitle{
+    margin:0;
+    color:var(--ink-dim);
+    font-size:15.5px;
+    max-width:64ch;
+    line-height:1.5;
+  }
+  .byline{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px 18px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    color:var(--ink-dim);
+    margin-top:4px;
+  }
+  .byline b{ color:var(--ink); font-weight:600; }
+
+  h2{
+    font-size:12.5px;
+    font-weight:600;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--ink-dim);
+    margin:0 0 14px 0;
+  }
+  h2 span.accent-dot{
+    display:inline-block; width:7px; height:7px; border-radius:1px;
+    background:var(--accent); margin-right:8px; transform:translateY(-1px);
+  }
+  p{ line-height:1.6; font-size:15px; }
+  .lede{ font-size:15.5px; line-height:1.65; max-width:70ch; }
+
+  section{ display:flex; flex-direction:column; }
+
+  /* ---------- stat row ---------- */
+  .stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:1px;
+    background:var(--border);
+    border:1px solid var(--border);
+    border-radius:8px;
+    overflow:hidden;
+  }
+  .stat{
+    background:var(--panel);
+    padding:14px 14px;
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+  }
+  .stat .n{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:22px;
+    font-weight:600;
+    font-variant-numeric:tabular-nums;
+  }
+  .stat .l{ font-size:11.5px; color:var(--ink-dim); letter-spacing:.03em; }
+  @media (max-width:560px){ .stats{ grid-template-columns:repeat(2,1fr);} }
+
+  /* ---------- diagram ---------- */
+  .diagram-card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:18px 14px 14px;
+    box-shadow:var(--shadow);
+  }
+  .diagram-card svg{ width:100%; height:auto; display:block; }
+  .diagram-caption{
+    font-size:12px; color:var(--ink-dim); margin-top:8px; text-align:center;
+    font-family:'IBM Plex Mono',monospace;
+  }
+
+  /* ---------- pipeline steps ---------- */
+  .steps{ display:flex; flex-direction:column; gap:0; border-radius:10px; overflow:hidden; border:1px solid var(--border); }
+  .step{
+    display:grid;
+    grid-template-columns:44px 1fr;
+    gap:14px;
+    padding:14px 16px;
+    background:var(--panel);
+  }
+  .step + .step{ border-top:1px solid var(--border); }
+  .step .idx{
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:600;
+    font-size:14px;
+    color:var(--accent);
+    display:flex; align-items:flex-start; padding-top:1px;
+  }
+  .step .body b{ font-weight:600; }
+  .step .cap{
+    display:inline-block; margin-top:6px;
+    font-family:'IBM Plex Mono',monospace; font-size:11.5px;
+    background:color-mix(in srgb, var(--accent) 12%, transparent);
+    color:var(--accent);
+    padding:2px 7px; border-radius:4px;
+  }
+
+  /* ---------- console ---------- */
+  .console{
+    background:var(--console-bg);
+    border-radius:10px;
+    box-shadow:var(--shadow);
+    overflow:hidden;
+    border:1px solid var(--border);
+  }
+  .console-bar{
+    display:flex; align-items:center; gap:7px;
+    padding:9px 12px;
+    background:color-mix(in srgb, var(--console-bg) 85%, white 6%);
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .console-bar .dot{ width:9px; height:9px; border-radius:50%; }
+  .console-bar .title{
+    margin-left:6px; font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--console-dim);
+  }
+  .console pre{
+    margin:0; padding:14px 16px 16px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12.3px;
+    line-height:1.62;
+    color:var(--console-ink);
+    overflow-x:auto;
+    white-space:pre;
+  }
+  .console pre .dim{ color:var(--console-dim); }
+  .console pre .amber{ color:var(--console-amber); }
+  .console pre .red{ color:var(--console-red); }
+  .console pre .ok{ color:#8fd39a; }
+
+  .two-col{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width:680px){ .two-col{ grid-template-columns:1fr; } }
+
+  /* ---------- run instructions ---------- */
+  .runcard{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:16px 18px;
+    display:flex; flex-direction:column; gap:12px;
+  }
+  .runline{ display:flex; flex-direction:column; gap:5px; }
+  .runline .lbl{ font-size:11.5px; color:var(--ink-dim); font-family:'IBM Plex Mono',monospace; letter-spacing:.02em;}
+  .runline code{
+    display:block;
+    background:var(--paper);
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:9px 11px;
+    font-size:13px;
+    overflow-x:auto;
+  }
+
+  /* ---------- links / footer ---------- */
+  .linkbar{
+    display:flex; flex-wrap:wrap; gap:10px 22px;
+    padding:16px 18px;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:10px;
+  }
+  .linkitem{ display:flex; flex-direction:column; gap:2px; }
+  .linkitem .l{ font-size:11px; color:var(--ink-dim); text-transform:uppercase; letter-spacing:.06em; }
+  .linkitem .v{ font-family:'IBM Plex Mono',monospace; font-size:13px; }
+
+  footer{
+    border-top:1px solid var(--border);
+    padding-top:16px;
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;
+    font-size:12px; color:var(--ink-dim);
+    font-family:'IBM Plex Mono',monospace;
+  }
+
+  .zone-pill{
+    display:inline-flex; align-items:center; gap:5px;
+    font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:600;
+    padding:2px 8px; border-radius:999px;
+  }
+  .zone-b{ background:color-mix(in srgb, var(--good) 16%, transparent); color:var(--good); }
+  .zone-d{ background:color-mix(in srgb, var(--warn) 18%, transparent); color:var(--warn); }
+  .zone-x{ background:color-mix(in srgb, var(--crit) 18%, transparent); color:var(--crit); }
+</style>
+
+<div class="page">
+
+  <div class="masthead">
+    <div class="eyebrow">Industrial Computing — Exercise 2</div>
+    <h1>Distributed Predictive-Maintenance A2A System</h1>
+    <p class="subtitle">A multi-process, multi-agent system with dynamic registry-based service discovery: five independent agents, each its own process (and, containerized, its own Docker container on its own port), collaborate over an A2A-style HTTP protocol to diagnose industrial equipment health.</p>
+    <div class="byline">
+      <span>Prepared by <b>markusrussold@gmail.com</b></span>
+      <span>·</span>
+      <span>2026-09-13</span>
+      <span>·</span>
+      <span>Runtime verified: local processes + Docker Compose (5 containers)</span>
+    </div>
+  </div>
+
+  <section>
+    <div class="stats">
+      <div class="stat"><span class="n">5</span><span class="l">independent agent processes</span></div>
+      <div class="stat"><span class="n">15s</span><span class="l">registry TTL (dead entries expire)</span></div>
+      <div class="stat"><span class="n">5s</span><span class="l">heartbeat renewal interval</span></div>
+      <div class="stat"><span class="n">0</span><span class="l">hardcoded peer addresses</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="accent-dot"></span>Architecture</h2>
+    <div class="diagram-card">
+      <svg viewBox="0 0 820 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Architecture diagram: a Registry agent at top, an Orchestrator agent below it, and three specialist agents (vibration, thermal, maintenance) connected via dynamic lookup and a call pipeline.">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="var(--ink-dim)"></path>
+          </marker>
+          <marker id="arrowAccent" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"></path>
+          </marker>
+        </defs>
+
+        <!-- registry node -->
+        <rect x="300" y="14" width="220" height="56" rx="8" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.6"></rect>
+        <text x="410" y="36" text-anchor="middle" font-family="IBM Plex Sans" font-weight="600" font-size="14" fill="var(--ink)">Registry Agent</text>
+        <text x="410" y="55" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" fill="var(--ink-dim)">:8000 · register / heartbeat / lookup</text>
+
+        <!-- dashed lookup lines from registry down to orchestrator -->
+        <line x1="410" y1="70" x2="410" y2="120" stroke="var(--accent)" stroke-width="1.4" stroke-dasharray="3 4" marker-end="url(#arrowAccent)"></line>
+        <text x="422" y="98" font-family="IBM Plex Mono" font-size="10.5" fill="var(--accent)">lookup(capability)</text>
+
+        <!-- orchestrator -->
+        <rect x="300" y="122" width="220" height="56" rx="8" fill="var(--panel)" stroke="var(--ink)" stroke-width="1.6"></rect>
+        <text x="410" y="144" text-anchor="middle" font-family="IBM Plex Sans" font-weight="600" font-size="14" fill="var(--ink)">Orchestrator Agent</text>
+        <text x="410" y="163" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" fill="var(--ink-dim)">:8001 · POST /diagnose</text>
+
+        <!-- three specialist nodes -->
+        <rect x="40" y="248" width="200" height="66" rx="8" fill="var(--panel)" stroke="var(--border)" stroke-width="1.4"></rect>
+        <text x="140" y="270" text-anchor="middle" font-family="IBM Plex Sans" font-weight="600" font-size="13.5" fill="var(--ink)">Vibration Agent</text>
+        <text x="140" y="288" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" fill="var(--ink-dim)">:8002</text>
+        <text x="140" y="304" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="var(--accent)">vibration-analysis</text>
+
+        <rect x="310" y="248" width="200" height="66" rx="8" fill="var(--panel)" stroke="var(--border)" stroke-width="1.4"></rect>
+        <text x="410" y="270" text-anchor="middle" font-family="IBM Plex Sans" font-weight="600" font-size="13.5" fill="var(--ink)">Thermal Agent</text>
+        <text x="410" y="288" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" fill="var(--ink-dim)">:8003</text>
+        <text x="410" y="304" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="var(--accent)">thermal-analysis</text>
+
+        <rect x="580" y="248" width="200" height="66" rx="8" fill="var(--panel)" stroke="var(--border)" stroke-width="1.4"></rect>
+        <text x="680" y="270" text-anchor="middle" font-family="IBM Plex Sans" font-weight="600" font-size="13.5" fill="var(--ink)">Maintenance Agent</text>
+        <text x="680" y="288" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" fill="var(--ink-dim)">:8004</text>
+        <text x="680" y="304" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="var(--accent)">maintenance-scheduling</text>
+
+        <!-- calls from orchestrator to 1 and 2 (parallel) -->
+        <line x1="360" y1="178" x2="150" y2="246" stroke="var(--ink-dim)" stroke-width="1.4" marker-end="url(#arrow)"></line>
+        <text x="200" y="215" font-family="IBM Plex Mono" font-size="10.5" fill="var(--ink-dim)">① analyze</text>
+        <line x1="410" y1="178" x2="410" y2="246" stroke="var(--ink-dim)" stroke-width="1.4" marker-end="url(#arrow)"></line>
+        <text x="418" y="215" font-family="IBM Plex Mono" font-size="10.5" fill="var(--ink-dim)">② analyze</text>
+
+        <!-- call to maintenance, depends on outputs of 1 & 2 -->
+        <path d="M460,178 C 560,205 640,220 660,246" fill="none" stroke="var(--accent)" stroke-width="1.6" marker-end="url(#arrowAccent)"></path>
+        <text x="560" y="230" font-family="IBM Plex Mono" font-size="10.5" fill="var(--accent)">③ recommend (needs ①+②)</text>
+      </svg>
+    </div>
+    <div class="diagram-caption">solid arrows = A2A <span class="mono">/tasks/send</span> calls · dashed = registry lookups performed fresh on every request</div>
+  </section>
+
+  <section>
+    <h2><span class="accent-dot"></span>How the three agents collaborate</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="idx">01</div>
+        <div class="body"><b>Vibration Analysis</b> scores ISO&nbsp;10816-style RMS velocity readings into a severity zone (<span class="zone-pill zone-b">B good</span> <span class="zone-pill zone-d">D warn</span> <span class="zone-pill zone-x">X danger</span>) and an anomaly score.<span class="cap">vibration-analysis</span></div>
+      </div>
+      <div class="step">
+        <div class="idx">02</div>
+        <div class="body"><b>Thermal Analysis</b> scores bearing/housing temperature readings against warning (80&nbsp;°C) and critical (95&nbsp;°C) thresholds, run <i>concurrently</i> with step 1.<span class="cap">thermal-analysis</span></div>
+      </div>
+      <div class="step">
+        <div class="idx">03</div>
+        <div class="body"><b>Maintenance Scheduling</b> only executes once both scores exist — it combines them with operating hours into a priority, a concrete action, and a re-check interval. This dependency is what makes it a real pipeline, not three isolated calls.<span class="cap">maintenance-scheduling</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="accent-dot"></span>Dynamic registry lookup — verified end to end</h2>
+    <p class="lede">The Orchestrator never hardcodes a peer's host or port. For every request it asks the Registry <span class="mono">GET /lookup?capability=X</span> and calls whoever answers. Two behaviors were captured live from the running Docker Compose system:</p>
+
+    <div class="two-col">
+      <div class="console">
+        <div class="console-bar">
+          <span class="dot" style="background:#e0776a"></span><span class="dot" style="background:#e0b95f"></span><span class="dot" style="background:#7fbf7a"></span>
+          <span class="title">docker compose — 5 containers, then a diagnosis</span>
+        </div>
+        <pre><span class="dim">$ docker compose ps</span>
+NAME                  SERVICE            PORTS
+pm-registry           registry           0.0.0.0:8000-&gt;8000
+pm-orchestrator       orchestrator       0.0.0.0:8001-&gt;8001
+pm-vibration-agent    vibration-agent    0.0.0.0:8002-&gt;8002
+pm-thermal-agent      thermal-agent      0.0.0.0:8003-&gt;8003
+pm-maintenance-agent  maintenance-agent  0.0.0.0:8004-&gt;8004
+
+<span class="dim">$ curl -s :8001/diagnose -d '{"machine_id":
+   "COMPRESSOR-9-critical", "vibration_readings_mm_s":
+   [7.9,8.4,9.1,8.8,9.6], "temperature_readings_c":
+   [96,99,101,98,100], "operating_hours":21000}'</span>
+
+pipeline_trace:
+  registry lookup -&gt; vibration-analysis served by
+    'vibration-agent@vibration-agent:8002'
+  registry lookup -&gt; thermal-analysis served by
+    'thermal-agent@thermal-agent:8003'
+  registry lookup -&gt; maintenance-scheduling served by
+    'maintenance-agent@maintenance-agent:8004'
+
+vibration: <span class="red">zone X — danger, exceeds safe limits</span>
+thermal:   <span class="red">critical — overheating risk</span>
+result:    <span class="amber">priority=urgent</span>, recheck in 2 day(s)</pre>
+      </div>
+
+      <div class="console">
+        <div class="console-bar">
+          <span class="dot" style="background:#e0776a"></span><span class="dot" style="background:#e0b95f"></span><span class="dot" style="background:#7fbf7a"></span>
+          <span class="title">scale-out + crash failover (live)</span>
+        </div>
+        <pre><span class="dim"># start a 2nd vibration-agent replica, no config
+# changes anywhere else in the fleet</span>
+$ docker run -d --name pm-vibration-agent-2 …
+
+lookup(vibration-analysis) -&gt;
+  ['vibration-agent@vibration-agent:8002',
+   'vibration-agent@pm-vibration-agent-2:8005']
+
+<span class="dim"># 4 requests, orchestrator load-balances:</span>
+served by …-2:8005
+served by …vibration-agent:8002
+served by …-2:8005
+served by …-2:8005
+
+<span class="dim">$ docker kill pm-vibration-agent-2   # abrupt crash</span>
+$ curl -s :8001/diagnose -d '{...}' x4
+<span class="ok">HTTP 200  HTTP 200  HTTP 200  HTTP 200</span>
+<span class="dim">→ all 4 transparently failed over to the
+  surviving replica, before the registry's own
+  15s TTL had even expired the dead entry.</span></pre>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="accent-dot"></span>Run it</h2>
+    <div class="runcard">
+      <div class="runline">
+        <span class="lbl">OPTION A — DOCKER COMPOSE (5 separate containers)</span>
+        <code>docker compose up -d --build<br>python3 demo_client.py --registry</code>
+      </div>
+      <div class="runline">
+        <span class="lbl">OPTION B — LOCAL PROCESSES, NO DOCKER</span>
+        <code>./run_local.sh<br>python3 demo_client.py<br>./stop_local.sh</code>
+      </div>
+      <div class="runline">
+        <span class="lbl">A2A PROTOCOL DIRECTLY</span>
+        <code>curl :8002/.well-known/agent.json          <span class="dim"># AgentCard</span><br>curl -X POST :8002/tasks/send -d '{"id":"t1","message":{...}}'</code>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="accent-dot"></span>Links &amp; references</h2>
+    <div class="linkbar">
+      <div class="linkitem"><span class="l">Repository</span><span class="v">~/projects/IndustrialComputing/ex2</span></div>
+      <div class="linkitem"><span class="l">Full instructions</span><span class="v">README.md (this repo)</span></div>
+      <div class="linkitem"><span class="l">Protocol reference</span><span class="v">google.github.io/A2A</span></div>
+      <div class="linkitem"><span class="l">Stack</span><span class="v">FastAPI · httpx · Docker Compose</span></div>
+    </div>
+  </section>
+
+  <footer>
+    <span>Distributed Predictive-Maintenance A2A System</span>
+    <span>Industrial Computing — Exercise 2</span>
+  </footer>
+
+</div>
